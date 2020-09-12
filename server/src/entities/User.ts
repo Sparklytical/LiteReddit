@@ -1,10 +1,10 @@
-import { Field, ObjectType } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
 import {
-  Column,
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  Column,
   BaseEntity,
   OneToMany,
 } from "typeorm";
@@ -20,11 +20,11 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ unique: true })
-  email!: string;
+  username!: string;
 
   @Field()
   @Column({ unique: true })
-  username!: string;
+  email!: string;
 
   @Column()
   password!: string;
@@ -36,10 +36,10 @@ export class User extends BaseEntity {
   updoots: Updoot[];
 
   @Field(() => String)
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

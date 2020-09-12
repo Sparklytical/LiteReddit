@@ -118,7 +118,6 @@ export class PostResolver {
     }
 
     let cursorIdx = 3;
-
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
       cursorIdx = replacements.length;
@@ -126,27 +125,43 @@ export class PostResolver {
 
     const posts = await getConnection().query(
       `
-      select p.*,
-      json_build_object(
-        'id', u.id,
-        'username', u.username,
-        'email', u.email,
-        'createdAt', u."createdAt",
-        'updatedAt', u."updatedAt"
-        ) creator,
-      ${
-        req.session.userId
-          ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
-          : 'null as "voteStatus"'
-      }
-      from post p
-      inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
-      order by p."createdAt" DESC
-      limit $1
+    select p.*,
+    json_build_object(
+      'id', u.id,
+      'username', u.username,
+      'email', u.email,
+      'createdAt', u."createdAt",
+      'updatedAt', u."updatedAt"
+      ) creator,
+    ${
+      req.session.userId
+        ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
+        : 'null as "voteStatus"'
+    }
+    from post p
+    inner join public.user u on u.id = p."creatorId"
+    ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
+    order by p."createdAt" DESC
+    limit $1
     `,
       replacements
     );
+
+    // const qb = getConnection()
+    //   .getRepository(Post)
+    //   .createQueryBuilder("p")
+    //   .innerJoinAndSelect("p.creator", "u", 'u.id = p."creatorId"')
+    //   .orderBy('p."createdAt"', "DESC")
+    //   .take(reaLimitPlusOne);
+
+    // if (cursor) {
+    //   qb.where('p."createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   });
+    // }
+
+    // const posts = await qb.getMany();
+    // console.log("posts: ", posts);
 
     return {
       posts: posts.slice(0, realLimit),
@@ -187,8 +202,12 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg("id") id: number): Promise<boolean> {
-    await Post.delete(id);
+  @UseMiddleware(isAuth)
+  async deletePost(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    await Post.delete({ id, creatorId: req.session.userId });
     return true;
   }
 }

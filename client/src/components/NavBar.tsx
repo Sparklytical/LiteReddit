@@ -29,7 +29,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   } else {
     //lOggedn in
     body = (
-      <Flex>
+      <Flex align="center">
+        <NextLink href="/create-post">
+          <Button as={Link} mr={5}>
+            Create Post
+          </Button>
+        </NextLink>
         <Box mr={3}>{data.me?.username}</Box>
         <Button
           onClick={() => {

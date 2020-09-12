@@ -23,7 +23,7 @@ export const Post = ({}) => {
   }
 
   if (error) {
-    return <div>{error.message}</div>;
+    return <Box>{error.message}</Box>;
   }
 
   if (!data?.post) {
