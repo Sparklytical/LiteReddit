@@ -15,6 +15,6 @@ A lighter version of reddit built using React, Typescript, GraphQL, Apollo, Post
 - Redis
 - Next.js
 - TypeGraphQL
-- Chakra
+- Chakra UI
 
 
